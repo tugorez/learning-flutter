@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_layout/immutable_widget.dart';
 import 'package:flutter_layout/text_layout.dart';
 
 class BasicScreen extends StatelessWidget {
@@ -17,13 +16,15 @@ class BasicScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Column(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AspectRatio(
-            aspectRatio: 1.0,
-            child: ImmutableWidget(),
+          Semantics(
+            image: true,
+            label: 'A beautiful beach',
+            child: Image.asset('assets/beach.jpg'),
           ),
-          TextLayout(),
+          const TextLayout(),
         ],
       ),
       drawer: Drawer(
