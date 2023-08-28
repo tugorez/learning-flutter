@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dogs/star_rating.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -51,6 +52,7 @@ class ProfileDetails extends StatelessWidget {
       child: Column(
         children: [
           _title('Wolfram Barkovich'),
+          const StarRating(value: 5),
           _buildDetailsRow('Age', '4'),
           _buildDetailsRow('Status', 'Good Boy'),
         ],
