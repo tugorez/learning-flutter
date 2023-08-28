@@ -13,10 +13,13 @@ class _StopwatchState extends State<Stopwatch> {
   int milliseconds = 0;
   bool isTicking = false;
   final laps = <int>[];
+  final itemHeight = 60.0;
+  ScrollController? scrollController;
 
   @override
   void dispose() {
     timer?.cancel();
+    scrollController?.dispose();
     super.dispose();
   }
 
@@ -51,11 +54,21 @@ class _StopwatchState extends State<Stopwatch> {
   }
 
   Widget _buildLapDisplay(BuildContext context) {
-    return ListView(
-      children: [
-        for (int milliseconds in laps)
-          ListTile(title: Text(_secondsText(milliseconds))),
-      ],
+    return Scrollbar(
+      controller: scrollController,
+      child: ListView.builder(
+        controller: scrollController,
+        itemExtent: itemHeight,
+        itemCount: laps.length,
+        itemBuilder: (context, index) {
+          final milliseconds = laps[index]!;
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 50),
+            title: Text('Lap ${index + 1}'),
+            trailing: Text(_secondsText(milliseconds)),
+          );
+        },
+      ),
     );
   }
 
@@ -117,6 +130,7 @@ class _StopwatchState extends State<Stopwatch> {
   void _startTimer() {
     timer?.cancel();
     timer = Timer.periodic(const Duration(milliseconds: 100), _onTick);
+    scrollController = ScrollController();
 
     setState(() {
       isTicking = true;
@@ -128,6 +142,8 @@ class _StopwatchState extends State<Stopwatch> {
   void _stopTimer() {
     timer?.cancel();
     timer = null;
+    scrollController?.dispose();
+    scrollController = null;
 
     setState(() {
       isTicking = false;
@@ -139,6 +155,11 @@ class _StopwatchState extends State<Stopwatch> {
       laps.add(milliseconds);
       milliseconds = 0;
     });
+    scrollController?.animateTo(
+      itemHeight * laps.length,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeIn,
+    );
   }
 
   void _onTick(_) {
