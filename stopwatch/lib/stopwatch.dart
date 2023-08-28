@@ -10,8 +10,9 @@ class Stopwatch extends StatefulWidget {
 
 class _StopwatchState extends State<Stopwatch> {
   Timer? timer;
-  int seconds = 0;
+  int milliseconds = 0;
   bool isTicking = false;
+  final laps = <int>[];
 
   @override
   void dispose() {
@@ -28,50 +29,99 @@ class _StopwatchState extends State<Stopwatch> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            _timerText,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                child: const Text('Start'),
-                onPressed: isTicking ? null : _startTimer,
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.green),
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white),
-                ),
-              ),
-              const SizedBox(width: 20),
-              TextButton(
-                child: const Text('End'),
-                onPressed: isTicking ? _stopTimer : null,
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white),
-                ),
-              ),
-            ],
-          ),
+          Expanded(child: _buildCounterAndControls(context)),
+          Expanded(child: _buildLapDisplay(context)),
         ],
       ),
     );
   }
 
-  String get _timerText => '$seconds ${seconds == 1 ? "second" : "seconds"}';
+  Widget _buildCounterAndControls(BuildContext context) {
+    return Container(
+      color: Theme.of(context).primaryColor,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildCounter(context),
+          const SizedBox(height: 20),
+          _buildControls(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLapDisplay(BuildContext context) {
+    return ListView(
+      children: [
+        for (int milliseconds in laps)
+          ListTile(title: Text(_secondsText(milliseconds))),
+      ],
+    );
+  }
+
+  Widget _buildCounter(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Lap ${laps.length + 1}',
+          style: Theme.of(context)
+              .textTheme
+              .headline5!
+              .copyWith(color: Colors.white),
+        ),
+        Text(
+          _secondsText(milliseconds),
+          style: Theme.of(context)
+              .textTheme
+              .headline5!
+              .copyWith(color: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildControls(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          ),
+          onPressed: isTicking ? null : _startTimer,
+          child: const Text('Start'),
+        ),
+        const SizedBox(width: 20),
+        ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.yellow),
+          ),
+          onPressed: isTicking ? _lap : null,
+          child: const Text('Lap'),
+        ),
+        const SizedBox(width: 20),
+        TextButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          ),
+          onPressed: isTicking ? _stopTimer : null,
+          child: const Text('End'),
+        ),
+      ],
+    );
+  }
 
   void _startTimer() {
     timer?.cancel();
-    timer = Timer.periodic(const Duration(seconds: 1), _onTick);
+    timer = Timer.periodic(const Duration(milliseconds: 100), _onTick);
 
     setState(() {
       isTicking = true;
-      seconds = 0;
+      milliseconds = 0;
+      laps.clear();
     });
   }
 
@@ -84,9 +134,18 @@ class _StopwatchState extends State<Stopwatch> {
     });
   }
 
-  void _onTick(_) {
+  void _lap() {
     setState(() {
-      ++seconds;
+      laps.add(milliseconds);
+      milliseconds = 0;
     });
   }
+
+  void _onTick(_) {
+    setState(() {
+      milliseconds += 100;
+    });
+  }
+
+  String _secondsText(int milliseconds) => '${milliseconds / 1000} seconds';
 }
