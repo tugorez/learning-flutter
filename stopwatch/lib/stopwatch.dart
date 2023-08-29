@@ -2,7 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class Stopwatch extends StatefulWidget {
-  const Stopwatch({super.key});
+  final String name;
+  final String email;
+
+  const Stopwatch({required this.name, required this.email, super.key});
 
   @override
   State<Stopwatch> createState() => _StopwatchState();
@@ -14,12 +17,12 @@ class _StopwatchState extends State<Stopwatch> {
   bool isTicking = false;
   final laps = <int>[];
   final itemHeight = 60.0;
-  ScrollController? scrollController;
+  final scrollController = ScrollController();
 
   @override
   void dispose() {
     timer?.cancel();
-    scrollController?.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -27,7 +30,7 @@ class _StopwatchState extends State<Stopwatch> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stopwatch'),
+        title: Text('Stopwatch for ${widget.name}'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +133,6 @@ class _StopwatchState extends State<Stopwatch> {
   void _startTimer() {
     timer?.cancel();
     timer = Timer.periodic(const Duration(milliseconds: 100), _onTick);
-    scrollController = ScrollController();
 
     setState(() {
       isTicking = true;
@@ -142,8 +144,6 @@ class _StopwatchState extends State<Stopwatch> {
   void _stopTimer() {
     timer?.cancel();
     timer = null;
-    scrollController?.dispose();
-    scrollController = null;
 
     setState(() {
       isTicking = false;
@@ -155,7 +155,7 @@ class _StopwatchState extends State<Stopwatch> {
       laps.add(milliseconds);
       milliseconds = 0;
     });
-    scrollController?.animateTo(
+    scrollController.animateTo(
       itemHeight * laps.length,
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeIn,
