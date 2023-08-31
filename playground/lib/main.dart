@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const App());
+  runApp(const HelloWidget());
 }
 
-class App extends StatelessWidget {
-  const App({super.key});
+class HelloWidget extends Widget {
+  const HelloWidget({super.key});
 
   @override
-  Widget build(BuildContext context) => Container();
+  Element createElement() => HelloElement(this);
+}
+
+class HelloElement extends Element {
+  HelloElement(super.widget);
+
+  @override
+  bool get debugDoingBuild => true;
 }
