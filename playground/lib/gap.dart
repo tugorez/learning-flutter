@@ -17,11 +17,10 @@ class Gap extends LeafRenderObjectWidget {
 }
 
 class RenderGap extends RenderBox {
-  RenderGap({
-    required double mainAxisExtent,
-  }) : _mainAxisExtent = mainAxisExtent;
-
   double _mainAxisExtent = 0;
+
+  RenderGap({required double mainAxisExtent})
+      : _mainAxisExtent = mainAxisExtent;
 
   double get mainAxisExtent => _mainAxisExtent;
 
@@ -36,7 +35,13 @@ class RenderGap extends RenderBox {
   void performLayout() {
     final flex = parent as RenderFlex;
     size = flex.direction == Axis.horizontal
-        ? Size(mainAxisExtent, 0)
-        : Size(0, mainAxisExtent);
+        ? Size(mainAxisExtent, mainAxisExtent)
+        : Size(mainAxisExtent, mainAxisExtent);
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final Paint paint = Paint()..color = Colors.red;
+    context.canvas.drawRect(offset & size, paint);
   }
 }
