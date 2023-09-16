@@ -28,7 +28,47 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Container(),
+        child: animatedBox(),
+      ),
+    );
+  }
+
+  double _right = 0;
+
+  void _onTapped() => setState(() => _right = 100);
+
+  Widget animatedBox() {
+    const sideLength = 200.0;
+
+    return Container(
+      height: sideLength,
+      width: sideLength,
+      child: GestureDetector(
+        onHorizontalDragUpdate: (details) {
+          setState(() {
+            _right += 10;
+          });
+        },
+        onHorizontalDragEnd: (details) {
+          setState(() {
+            _right = 0;
+          });
+        },
+        child: Stack(
+          children: [
+            Material(color: Colors.grey, child: InkWell(onTap: _onTapped)),
+            AnimatedPositioned(
+              top: 0,
+              left: _right,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                width: sideLength / 5,
+                height: sideLength / 5,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
